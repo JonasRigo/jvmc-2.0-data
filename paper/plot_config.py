@@ -27,6 +27,11 @@ COLORS = {
     "jvmc_batched": "#30ca92",
     "netket": "#8d82f4",
     "netket_onthefly": "#5b4cc4",
+    "tdvp": "#30ca92",
+    "tdvp_large": "#1d8a63",
+    "exact": "#8d82f4",
+    "cnn_chen": "#5b4cc4",
+    "cnn_schmitt": "#b58df2",
     # Reference lines and their annotations
     "guide": "#808080",
 }
