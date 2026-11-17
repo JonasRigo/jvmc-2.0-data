@@ -5,18 +5,33 @@ Every plotting script starts with
     import plot_config as cfg
     cfg.setup()
 
-and takes colors from ``cfg.COLORS`` so that the same method has the same color in every figure.
+Use ``cfg.setup(grid=False)`` for panels with custom grids. Typography,
+physical figure sizes, method colors, formatters, paths and PDF exports live
+here. LaTeX with Computer Modern and dvipng is required for text rendering.
+Include figures at native size to preserve 10 pt labels and 9 pt tick labels.
 """
 from pathlib import Path
 
 import matplotlib as mpl
 from matplotlib import ticker
 
+MM = 1 / 25.4
+# Measured with the document class/options in main.tex: textwidth = 510 TeX pt.
+TEXT_WIDTH_MM = 510 / 72.27 * 25.4
+FONTSIZE = 10
+TICK_FONTSIZE = 9
+
+
+def figure_size(*, width_fraction=1.0, height_mm=None):
+    """Size for a fraction of the paper text width, without export cropping."""
+    width_mm = TEXT_WIDTH_MM * width_fraction
+    if height_mm is None:
+        height_mm = width_mm * 0.65
+    return width_mm * MM, height_mm * MM
+
 PAPER_DIR = Path(__file__).resolve().parent
 DATA_DIR = PAPER_DIR / "Data"
 FIGURES_DIR = PAPER_DIR / "Figures"
-
-FONTSIZE = 12
 
 # jVMC_exp in greens, reference methods in purple
 COLORS = {
@@ -31,20 +46,36 @@ COLORS = {
     "guide": "#808080",
 }
 
-def setup():
+def setup(*, grid=True):
+    """Apply paper typography; grid=False leaves panels to set their own grids."""
     mpl.rcParams.update({
+        "text.usetex": True,
+        "font.family": "serif",
+        "font.serif": ["Computer Modern Roman"],
         "font.size": FONTSIZE,
-        "axes.titlesize": FONTSIZE,
         "axes.labelsize": FONTSIZE,
-        "xtick.labelsize": FONTSIZE,
-        "ytick.labelsize": FONTSIZE,
+        "axes.titlesize": FONTSIZE,
+        "figure.titlesize": FONTSIZE,
         "legend.fontsize": FONTSIZE,
-        "axes.grid": True,
-        "grid.linestyle": "--",
-        "grid.alpha": 0.5,
-        # Embed TrueType fonts in the PDF instead of Type 3, as most journals require
+        "xtick.labelsize": TICK_FONTSIZE,
+        "ytick.labelsize": TICK_FONTSIZE,
+        "axes.linewidth": 0.6,
+        "lines.linewidth": 1.0,
+        "lines.markersize": 4,
+        "axes.axisbelow": True,
+        "axes.formatter.useoffset": False,
+        "grid.linewidth": 0.5,
+        "hatch.linewidth": 0.45,
+        "savefig.bbox": None,
+        "savefig.facecolor": "white",
+        "savefig.dpi": 300,
         "pdf.fonttype": 42,
+        "svg.fonttype": "none",
+        "axes.grid": grid,
+        "grid.linestyle": "--" if grid else "-",
+        "grid.alpha": 0.5 if grid else 1.0,
     })
+
 
 class _PlainLogFormatter(ticker.LogFormatter):
     def __call__(self, x, pos=None):

@@ -45,7 +45,7 @@ def plot_step(ax_mem, ax_time, points, x, step):
 
 cfg.setup()
 
-fig, axes = plt.subplots(2, 2, figsize=(13, 9.5))
+fig, axes = plt.subplots(2, 2, figsize=cfg.figure_size(width_fraction=0.8, height_mm=145))
 (ax_sr_mem, ax_sr_time), (ax_minsr_mem, ax_minsr_time) = axes
 
 plot_step(ax_sr_mem, ax_sr_time, load_points(SR_DATA, "n_samples"), "n_samples", "sr_step")
@@ -70,6 +70,6 @@ legend = {}
 for ax in axes.flat:
     for handle, label in zip(*ax.get_legend_handles_labels()):
         legend.setdefault(label, handle)
-fig.legend(legend.values(), legend.keys(), loc="upper center", ncol=len(legend), frameon=False)
-fig.tight_layout(rect=(0, 0, 1, 0.95))
+fig.legend(legend.values(), legend.keys(), loc="upper center", ncol=2, frameon=False)
+fig.tight_layout(rect=(0, 0, 1, 0.90))
 cfg.save(fig, "netket_comparison_sr_minsr_1gpu")
