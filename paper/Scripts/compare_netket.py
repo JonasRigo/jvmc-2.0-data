@@ -160,12 +160,12 @@ def run_jvmc(cfg, out_dir):
     hamiltonian = jvmc_hamiltonian(L, cfg["g"])
 
     batch_size = cfg['batch_size'] or cfg["n_samples"]
-    net = CpxRBM(numHidden=cfg["num_hidden"], bias=cfg["bias"])
-    psi = NQS(net, L, batchSize=batch_size, seed=cfg["seed"])
+    net = CpxRBM(num_hidden=cfg["num_hidden"], bias=cfg["bias"])
+    psi = NQS(net, L, batch_size=batch_size, seed=cfg["seed"])
     sampler = MCSampler(
         psi, SpinFlip(), key=cfg["seed"],
-        numChains=cfg["n_chains"], numSamples=cfg["n_samples"],
-        thermalizationSweeps=cfg["therm_sweeps"], sweepSteps=L
+        num_chains=cfg["n_chains"], num_samples=cfg["n_samples"],
+        thermalization_sweeps=cfg["therm_sweeps"], sweep_steps=L
     )
 
     def expect():
@@ -188,7 +188,7 @@ def run_jvmc(cfg, out_dir):
         **{"params/" + "/".join(k): np.asarray(v) for k, v in flatten_dict(psi.params).items()},
     )
 
-    n_params = psi.numParameters if psi.realParams else 2 * psi.numParameters
+    n_params = psi.num_parameters if psi.real_params else 2 * psi.num_parameters
     save(out_dir, "jvmc", {
         "library": "jVMC_exp",
         **environment_info(jVMC_exp=jVMC_exp.__version__),

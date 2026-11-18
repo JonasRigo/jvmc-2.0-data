@@ -14,7 +14,7 @@ SERIES = {
 
 cfg.setup()
 
-fig, ax = plt.subplots(figsize=(6.5, 5))
+fig, ax = plt.subplots(figsize=cfg.figure_size(width_fraction=0.5, height_mm=75))
 
 for jaxmg, (label, color, marker) in SERIES.items():
     points = []

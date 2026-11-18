@@ -11,7 +11,6 @@ Data in Data/tfim_dynamics/, from the runs in Scripts/tfim_dynamics/ (encap vers
     cnn_schmitt_8x8.csv    CNN of Schmitt et al. (columns t, Sx)
     cnn_schmitt_10x10.csv  CNN of Schmitt et al. (columns x = h_c t, y = X)
 """
-import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -19,8 +18,6 @@ import plot_config as cfg
 
 DATA = cfg.DATA_DIR / "tfim_dynamics"
 H_C = 3.04438
-# Larger than cfg.FONTSIZE, for a 3x3 grid that is shrunk to the page width
-FONTSIZE = 16
 # jVMC runs per lattice size: (file, label, color)
 RUNS = {
     6: [("jvmc_6x6_nc10.csv", r"jVMC-2.0, $n_C=10$", cfg.COLORS["tdvp"])],
@@ -40,10 +37,8 @@ def load_run(file):
     return dict(zip(names, values))
 
 cfg.setup()
-mpl.rcParams.update({key: FONTSIZE for key in
-                     ("font.size", "axes.titlesize", "axes.labelsize", "xtick.labelsize", "ytick.labelsize")})
 
-fig, axes = plt.subplots(3, len(RUNS), figsize=(12, 7.5), sharex=True, sharey="row")
+fig, axes = plt.subplots(3, len(RUNS), figsize=cfg.figure_size(height_mm=125), sharex=True, sharey="row")
 for col, (L, runs) in zip(axes.T, RUNS.items()):
     ax_E, ax_r, ax_X = col
     for file, label, color in runs:
@@ -73,7 +68,7 @@ for ax in axes[1]:
     ax.set_yscale("log")
 for ax in axes[2]:
     ax.set_xlabel(r"time $h_\mathrm{c} t$")
-    ax.legend(loc="upper right", fontsize=FONTSIZE - 3, labelspacing=0.3, borderaxespad=0.3)
+    ax.legend(loc="upper right", fontsize=cfg.TICK_FONTSIZE, labelspacing=0.3, borderaxespad=0.3)
 
 axes[0, 0].set_ylabel(r"energy $E - E_0$")
 axes[1, 0].set_ylabel(r"TDVP error $r^2$")

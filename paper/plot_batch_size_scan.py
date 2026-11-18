@@ -18,7 +18,7 @@ with h5py.File(DATA, "r") as f:
     times = {stage: np.array([g["timings"][stage]["last_timing"][()] for g in points]) for stage in cfg.STAGES}
     peak_memory = np.array([max(d["peak_bytes_in_use"][()] for d in g["memory"].values()) for g in points]) / 1e9
 
-fig, (ax_speedup, ax_mem) = plt.subplots(1, 2, figsize=(13, 5))
+fig, (ax_speedup, ax_mem) = plt.subplots(1, 2, figsize=cfg.figure_size(height_mm=90))
 
 # Speedup over the smallest batch size
 for (stage, (label, color)), marker in zip(cfg.STAGES.items(), "osD"):
@@ -38,5 +38,5 @@ for ax in (ax_speedup, ax_mem):
     ax.set_xlabel("Batch size")
 
 fig.legend(*ax_speedup.get_legend_handles_labels(), loc="upper center", ncol=len(cfg.STAGES), frameon=False)
-fig.tight_layout(rect=(0, 0, 1, 0.92))
+fig.tight_layout(rect=(0, 0, 1, 0.88))
 cfg.save(fig, "batch_size_scan")

@@ -9,7 +9,7 @@ jvmc-2.0 API. Changes w.r.t. the original:
 * Removed the unused ``jVMC.util.symmetries.LatticeSymmetry`` import (the module
   no longer exists; symmetries live in ``jVMC_exp.symmetry``).
 * ``padding="CIRCULAR"`` for periodic boundary conditions instead of ``"SAME"``
-  (zero padding), selectable via ``periodicBoundary``.
+  (zero padding), selectable via ``periodic_boundary``.
 
 The last block's channels are split into real and imaginary part, so
 ``channels[-1]`` must be even. Because the output is a ``logsumexp`` over sites
@@ -38,7 +38,7 @@ class ResNet(nn.Module):
         * ``channels``: Number of channels per residual block. Two convolutions
           are applied per block; ``channels[-1]`` must be even.
         * ``bias``: Whether to use biases.
-        * ``periodicBoundary``: Circular instead of zero padding.
+        * ``periodic_boundary``: Circular instead of zero padding.
     """
 
     Lx: int = 4
@@ -47,11 +47,11 @@ class ResNet(nn.Module):
     channels: Sequence[int] = (16,)
     strides: Sequence[int] = (1, 1)
     bias: bool = True
-    periodicBoundary: bool = True
+    periodic_boundary: bool = True
 
     @nn.compact
     def __call__(self, s):
-        padding = "CIRCULAR" if self.periodicBoundary else "SAME"
+        padding = "CIRCULAR" if self.periodic_boundary else "SAME"
         nsites = s.size
 
         # A symmetry projector (jVMC_exp.symmetry.ProjectedOrbitNet) hands the

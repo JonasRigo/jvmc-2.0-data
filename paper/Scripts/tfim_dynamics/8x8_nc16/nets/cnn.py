@@ -29,23 +29,23 @@ class CpxCNN2D(nn.Module):
     Initialization arguments:
         * ``F``: Filter diameter (per spatial direction).
         * ``channels``: Number of channels per layer.
-        * ``actFun``: Non-linear activation functions. The last entry is reused
+        * ``act_fun``: Non-linear activation functions. The last entry is reused
           for all remaining layers.
         * ``bias``: Whether to use biases.
-        * ``firstLayerBias``: Whether to use a bias in the first layer. A bias
+        * ``first_layer_bias``: Whether to use a bias in the first layer. A bias
           in the first layer only adds a constant to ``log psi`` and is
           therefore redundant.
-        * ``periodicBoundary``: Periodic ("wrap") instead of zero padding.
+        * ``periodic_boundary``: Periodic ("wrap") instead of zero padding.
     """
 
     Lx: int = 4
     Ly: int = 4
     F: Sequence[int] = (3, 3)
     channels: Sequence[int] = (12,)
-    actFun: Sequence[callable] = (act_funs.poly6,)
+    act_fun: Sequence[callable] = (act_funs.poly6,)
     bias: bool = True
-    firstLayerBias: bool = False
-    periodicBoundary: bool = True
+    first_layer_bias: bool = False
+    periodic_boundary: bool = True
 
     @nn.compact
     def __call__(self, s):
@@ -57,14 +57,14 @@ class CpxCNN2D(nn.Module):
         # padding is one-sided, which yields a circular convolution.
         pads = [(0, 0)]
         for f in self.F:
-            pads.append((0, f - 1) if self.periodicBoundary else (f - 1, f - 1))
+            pads.append((0, f - 1) if self.periodic_boundary else (f - 1, f - 1))
         pads.append((0, 0))
 
         bias = [self.bias] * len(self.channels)
-        bias[0] = self.firstLayerBias
+        bias[0] = self.first_layer_bias
 
-        actFun = list(self.actFun)
-        actFun += [self.actFun[-1]] * (len(self.channels) - len(actFun))
+        act_fun = list(self.act_fun)
+        act_fun += [self.act_fun[-1]] * (len(self.channels) - len(act_fun))
 
         init_args = init_fn_args(
             param_dtype=global_defs.DT_PARAMS_CPX,
@@ -74,8 +74,8 @@ class CpxCNN2D(nn.Module):
         # Add batch and feature dimension: (1, Lx, Ly, 1)
         x = jnp.expand_dims(jnp.expand_dims(2 * s - 1, axis=0), axis=-1)
 
-        for c, f, b in zip(self.channels, actFun, bias):
-            x = jnp.pad(x, pads, "wrap" if self.periodicBoundary else "constant")
+        for c, f, b in zip(self.channels, act_fun, bias):
+            x = jnp.pad(x, pads, "wrap" if self.periodic_boundary else "constant")
             x = f(
                 nn.Conv(
                     features=c,

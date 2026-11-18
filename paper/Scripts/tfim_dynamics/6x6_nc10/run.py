@@ -60,7 +60,7 @@ import numpy as np
 import pandas as pd
 from jVMC_exp.objective_function import Observable
 from jVMC_exp.operator.discrete import SigmaX, SigmaZ
-from jVMC_exp.solver.pinv_snr import PinvSNR
+from jVMC_exp.solver.pinv import PinvSNR
 from jVMC_exp.util.output_manager import OutputManager
 from nets.cnn import CpxCNN2D
 from nets.resnet import ResNet
@@ -141,8 +141,8 @@ if arch == "CNN":
         F=(filterSize,) * 2,
         channels=(numChannels,) * numLayers,
         bias=True,
-        firstLayerBias=False,
-        periodicBoundary=periodic,
+        first_layer_bias=False,
+        periodic_boundary=periodic,
     )
 elif arch == "ResNet":
     if numChannels % 2 != 0:
@@ -156,7 +156,7 @@ elif arch == "ResNet":
         channels=(numChannels,) * numLayers,
         strides=(1, 1),
         bias=True,
-        periodicBoundary=periodic,
+        periodic_boundary=periodic,
     )
 else:
     raise ValueError(f"Network architecture '{arch}' is not defined.")
@@ -165,15 +165,15 @@ else:
 # in and only the global spin flip is projected explicitly. Both the initial
 # state and H are invariant under it, so the dynamics stays in that sector.
 if symmetry == "spin_flip":
-    orbit = jVMC_exp.symmetry.lattice_symetries.spin_flip_symmetry(L, L, "spin")
+    orbit = jVMC_exp.symmetry.lattice_symmetries.spin_flip_symmetry(L, L, "spin")
 elif symmetry == "none":
     orbit = None
 else:
     raise ValueError(f"Symmetry '{symmetry}' is not defined.")
 
-psi = jVMC_exp.vqs.NQS(net, (L, L), batchSize=batchSize, seed=seed, orbit=orbit)
+psi = jVMC_exp.vqs.NQS(net, (L, L), batch_size=batchSize, seed=seed, orbit=orbit)
 
-print(f"parameters    = {psi.numParameters} ({psi.parameters_flat.size} real)", flush=True)
+print(f"parameters    = {psi.num_parameters} ({psi.parameters_flat.size} real)", flush=True)
 print(f"holomorphic   = {psi.holomorphic}", flush=True)
 
 
@@ -225,10 +225,10 @@ sampler = jVMC_exp.sampler.MCSampler(
     psi,
     jVMC_exp.propose.SpinFlipZ2(),
     key=seed,
-    numChains=numChains,
-    numSamples=numSamples,
-    thermalizationSweeps=thermalizationSweeps,
-    sweepSteps=N,
+    num_chains=numChains,
+    num_samples=numSamples,
+    thermalization_sweeps=thermalizationSweeps,
+    sweep_steps=N,
 )
 
 
@@ -347,8 +347,8 @@ def prepare_x_polarized():
     gs_outp = OutputManager(f"./data_{param_name}.h5", group="gs_search", append=True)
     gs_opt = jVMC_exp.optimizer.SR(
         sampler, psi,
-        diagonalShift=init_cfg["diagonalShift"],
-        diagonalScale=init_cfg["diagonalScale"],
+        diagonal_shift=init_cfg["diagonalShift"],
+        diagonal_scale=init_cfg["diagonalScale"],
         solver=PinvSNR(snr_tol=init_cfg["snr_tol"], pinv_cutoff=invCutoff),
         output_manager=gs_outp,
     )
@@ -367,7 +367,7 @@ def prepare_x_polarized():
         gs_opt.ground_state_search(
             init_cfg["steps"],
             Observable(H_x),
-            jVMC_exp.stepper.Euler(timeStep=init_cfg["dt"]),
+            jVMC_exp.stepper.Euler(time_step=init_cfg["dt"]),
             observables={"X": observables["X"]},
             callback=[stop_when_converged],
         )
@@ -416,11 +416,11 @@ opt = jVMC_exp.optimizer.TDVP(
     # Ignored for the holomorphic CNN; selects the real part of the TDVP
     # equation for the real-parameter ResNet.
     make_real=True,
-    diagonalShift=diagonalShift,
+    diagonal_shift=diagonalShift,
     solver=solver,
     output_manager=outp,
 )
-stepper = jVMC_exp.stepper.AdaptiveHeun(timeStep=dt, tol=integratorTol, maxStep=maxStep)
+stepper = jVMC_exp.stepper.AdaptiveHeun(time_step=dt, rtol= 0., atol=integratorTol, max_step=maxStep)
 objective = Observable(hamiltonian)
 
 
@@ -489,7 +489,7 @@ try:
         observables,
         callback=[after_step],
         save_meta_data=saveMetaData,
-        normFunction=tdvp_norm,
+        norm_function=tdvp_norm,
     )
 except MaxStepsReached as stop:
     print(f"WARNING: {stop}", flush=True)

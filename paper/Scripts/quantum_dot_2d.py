@@ -270,13 +270,13 @@ net = SlaterJastrowBackflow(
     cusp=ElectronCusp(),
     backflow=OrbitalBackflow(HOOrbitals(E_c_bf, omega)),
 )
-psi = jVMC_exp.vqs.NQS(net, sampleShape=n_dim * N, batchSize=n_samples, seed=seed)
+psi = jVMC_exp.vqs.NQS(net, sample_shape=n_dim * N, batch_size=n_samples, seed=seed)
 proposer = jVMC_exp.propose.RWM(geometry)
 sampler = jVMC_exp.sampler.MCSamplerCont(
-    psi, proposer, key=seed, numChains=n_samples // 4, numSamples=n_samples,
-    sweepSteps=2 * N, thermalizationSweeps=5
+    psi, proposer, key=seed, num_chains=n_samples // 4, num_samples=n_samples,
+    sweep_steps=2 * N, thermalization_sweeps=5
 )
-print("Number of parameters:", psi.numParameters)
+print("Number of parameters:", psi.num_parameters)
 
 lr = optax.piecewise_constant_schedule(
     5e-2, {int(0.4 * n_steps): 0.3, int(0.7 * n_steps): 0.3, int(0.9 * n_steps): 0.3}
@@ -284,7 +284,7 @@ lr = optax.piecewise_constant_schedule(
 stepper = jVMC_exp.stepper.Euler(lr)
 loss_function = jVMC_exp.objective_function.Observable(hamiltonian)
 solver = jVMC_exp.solver.Pinv()
-opt = jVMC_exp.optimizer.SR(sampler, psi, diagonalShift=1e-4, solver=solver)
+opt = jVMC_exp.optimizer.SR(sampler, psi, diagonal_shift=1e-4, solver=solver)
 
 out = opt.ground_state_search(n_steps, loss_function, stepper)
 
@@ -302,7 +302,7 @@ with h5py.File(DATA_DIR / "quantum_dot_2d.h5", "w") as f:
         N=N, n_dim=n_dim, omega=omega,
         E_c_det=E_c_det, E_c_jastrow=E_c_jastrow, E_c_bf=E_c_bf,
         n_samples=n_samples, n_steps=n_steps, seed=seed, final_samples=FINAL_SAMPLES,
-        num_parameters=psi.numParameters,
+        num_parameters=psi.num_parameters,
     )
     f["fci/E_c"] = np.array(sorted(E_fci))
     f["fci/energy"] = np.array([E_fci[E_c] for E_c in sorted(E_fci)])

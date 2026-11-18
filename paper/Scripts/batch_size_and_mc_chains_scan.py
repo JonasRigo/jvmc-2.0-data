@@ -75,17 +75,17 @@ print(f"Running benchmark with batch_size={batch_size}, mc_chains={mc_chains}")
 
 # Initialize net
 if net_name == "CpxCNN":
-    net_params = {"F": [20,], "channels": [10, 8, 6, 4], "bias": True, "firstLayerBias": True}
-    net = nets.CpxCNN(F=net_params["F"], channels=net_params["channels"], bias=net_params["bias"], firstLayerBias=net_params["firstLayerBias"]) # same as in figure 3d of the old paper
+    net_params = {"F": [20,], "channels": [10, 8, 6, 4], "bias": True, "first_layer_bias": True}
+    net = nets.CpxCNN(F=net_params["F"], channels=net_params["channels"], bias=net_params["bias"], first_layer_bias=net_params["first_layer_bias"]) # same as in figure 3d of the old paper
 elif net_name == "RWKV":
-    net_params = {"L": L, "LHilDim": 2, "patch_size": 1, "embedding_size": 16, "num_heads": 3, "num_layers": 3, "hidden_size": 8}
-    net = nets.RWKVCPM(L=net_params["L"], LHilDim=net_params["LHilDim"], patch_size=net_params["patch_size"], embedding_size=net_params["embedding_size"], num_heads=net_params["num_heads"], num_layers=net_params["num_layers"], hidden_size=net_params["hidden_size"])
+    net_params = {"L": L, "l_hil_dim": 2, "patch_size": 1, "embedding_size": 16, "num_heads": 3, "num_layers": 3, "hidden_size": 8}
+    net = nets.RWKVCPM(L=net_params["L"], l_hil_dim=net_params["l_hil_dim"], patch_size=net_params["patch_size"], embedding_size=net_params["embedding_size"], num_heads=net_params["num_heads"], num_layers=net_params["num_layers"], hidden_size=net_params["hidden_size"])
 elif net_name == "RNN":
-    net_params = {"L": L, "hiddenSize": 40, "depth": 2, "cell": "RNN"}
-    net = nets.RNN1DGeneral(L=net_params["L"], hiddenSize=net_params["hiddenSize"], depth=net_params["depth"], cell=net_params["cell"])
+    net_params = {"L": L, "hidden_size": 40, "depth": 2, "cell": "RNN"}
+    net = nets.RNN1DGeneral(L=net_params["L"], hidden_size=net_params["hidden_size"], depth=net_params["depth"], cell=net_params["cell"])
 
-psi = jVMC_exp.vqs.NQS(net, L, batchSize=batch_size, seed=1234)
-print(f"The variational ansatz has {psi.numParameters} parameters.")
+psi = jVMC_exp.vqs.NQS(net, L, batch_size=batch_size, seed=1234)
+print(f"The variational ansatz has {psi.num_parameters} parameters.")
 
 # Set up TFI hamiltonian
 hamiltonian = 0
@@ -98,19 +98,19 @@ objective_function = Observable(hamiltonian)
 if psi.is_generator: # Autoregressive nets
     sampler = jVMC_exp.sampler.MCSampler(
         psi,
-        updateProposer=None,
+        update_proposer=None,
         key=jax.random.PRNGKey(4321),
-        numSamples=num_samples,
+        num_samples=num_samples,
     )
 else:
     sampler = jVMC_exp.sampler.MCSampler(
         psi,
-        updateProposer=jVMC_exp.propose.SpinFlip(),
+        update_proposer=jVMC_exp.propose.SpinFlip(),
         key=jax.random.PRNGKey(4321),
-        numChains=mc_chains,
-        sweepSteps=L,
-        numSamples=num_samples,
-        thermalizationSweeps=20,
+        num_chains=mc_chains,
+        sweep_steps=L,
+        num_samples=num_samples,
+        thermalization_sweeps=20,
     )
 
 # Set up OutputManager, one file per scan and one group per point of the scan
@@ -139,11 +139,11 @@ tdvp = jVMC_exp.optimizer.TDVP(
     sampler,
     psi,
     make_real=True,
-    diagonalShift=10,
+    diagonal_shift=10,
     output_manager=output_manager
 )
 
-stepper = jVMC_exp.stepper.Euler(timeStep=1e-2)  # ODE integrator
+stepper = jVMC_exp.stepper.Euler(time_step=1e-2)  # ODE integrator
 
 # Run a few steps of TDVP
 for _ in range(3):
@@ -165,7 +165,7 @@ metadata = {
     "mc_chains": mc_chains,
     "mode": mode,
     "net_params": net_params,
-    "num_params": psi.numParameters,
+    "num_params": psi.num_parameters,
 }
 tdvp.output_manager.write_metadata(**metadata)
 

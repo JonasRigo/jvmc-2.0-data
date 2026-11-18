@@ -195,19 +195,19 @@ def run_jvmc(cfg, n_samples, out_dir, batched):
     batch_size = min(cfg["batch_size"] or n_samples, n_samples)
 
     hamiltonian = jvmc_hamiltonian(L, cfg["g"])
-    psi = NQS(RBM(numHidden=cfg["num_hidden"], bias=cfg["bias"]), L, batchSize=batch_size, seed=cfg["seed"])
+    psi = NQS(RBM(num_hidden=cfg["num_hidden"], bias=cfg["bias"]), L, batch_size=batch_size, seed=cfg["seed"])
     psi.parameters = jax.tree_util.tree_map(jnp.asarray, params)
     # Never samples: the samples are set below, where SR sets the ones it draws
-    sampler = MCSampler(psi, SpinFlip(), key=cfg["seed"], numChains=jax.device_count(), numSamples=n_samples)
+    sampler = MCSampler(psi, SpinFlip(), key=cfg["seed"], num_chains=jax.device_count(), num_samples=n_samples)
     objective = Observable(hamiltonian, batched_jacobian=batched)
     with warnings.catch_warnings():
-        # Notice about the naming of diagonalShift and diagonalScale
+        # Notice about the naming of diagonal_shift and diagonal_scale
         warnings.simplefilter("ignore", UserWarning)
-        sr = SR(sampler, psi, diagonalShift=cfg["diag_shift"], solver=Pinv(pinv_cutoff=cfg["pinv_cutoff"]))
+        sr = SR(sampler, psi, diagonal_shift=cfg["diag_shift"], solver=Pinv(pinv_cutoff=cfg["pinv_cutoff"]))
 
     def set_samples():
         # jVMC_exp evaluates log(psi) of the samples when sampling, NetKet in the SR step
-        sampler._samples, sampler._logPsi, sampler._weights = samples, psi(samples), weights
+        sampler._samples, sampler._log_psi, sampler._weights = samples, psi(samples), weights
 
     def local_energies():
         set_samples()
@@ -226,7 +226,7 @@ def run_jvmc(cfg, n_samples, out_dir, batched):
 
     return {
         **environment_info(jVMC_exp=jVMC_exp.__version__),
-        "n_parameters": psi.numParameters, "first_call": first_call, "times": times, **peak_memory(),
+        "n_parameters": psi.num_parameters, "first_call": first_call, "times": times, **peak_memory(),
     }
 
 

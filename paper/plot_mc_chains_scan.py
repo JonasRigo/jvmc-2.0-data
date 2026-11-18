@@ -16,7 +16,7 @@ SERIES = {
 
 cfg.setup()
 
-fig, ax = plt.subplots(figsize=(6.5, 5))
+fig, ax = plt.subplots(figsize=cfg.figure_size(width_fraction=0.5, height_mm=75))
 
 for n_gpus, (label, color, marker) in SERIES.items():
     with h5py.File(DATA / f"CpxCNN_L=50_Ns=4096_bs=4096_gpus={n_gpus}.hdf5", "r") as f:
@@ -36,7 +36,8 @@ cfg.plain_log_labels(ax.xaxis)
 # Minor labels would overlap over almost 3 decades
 ax.xaxis.set_minor_formatter(ticker.NullFormatter())
 cfg.plain_log_labels(ax.yaxis)
-ax.legend(loc="upper left")
+# Below the curves, which leave the lower middle empty
+ax.legend(loc="lower center", bbox_to_anchor=(0.6, 0))
 
 fig.tight_layout()
 cfg.save(fig, "mc_chains_scan")

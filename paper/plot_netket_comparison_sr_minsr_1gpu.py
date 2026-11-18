@@ -33,19 +33,18 @@ def plot_step(ax_mem, ax_time, points, x, step):
         ax_time.plot(n, [np.median(p["times"][step]) for p in ok], marker=marker, color=color, label=label)
 
     # Memory available to JAX, where the series that run out of memory end
-    ax_mem.axhline(limit, color=cfg.COLORS["guide"])
-    ax_mem.annotate("JAX memory limit", (min(p[x] for p in measured), limit), xytext=(0, -4), textcoords="offset points",
-                    va="top", color=cfg.COLORS["guide"])
+    ax_mem.axhline(limit, color=cfg.COLORS["guide"], label="JAX memory limit")
     oom = [p[x] for pts in points.values() for p in pts if p.get("oom")]
     if oom:
-        ax_mem.plot(oom, [limit] * len(oom), "x", color="k", ms=10, mew=2, label="out of memory")
+        ax_mem.plot(oom, [limit] * len(oom), "x", color="k", ms=6, mew=1.2, label="out of memory")
 
     ax_mem.set_ylabel("Peak device memory [GB]")
     ax_time.set_ylabel("Time [s]")
 
 cfg.setup()
 
-fig, axes = plt.subplots(2, 2, figsize=cfg.figure_size(width_fraction=0.8, height_mm=145))
+fig, axes = plt.subplots(2, 2, figsize=cfg.figure_size(width_fraction=0.8, height_mm=145),
+                         sharex="row")
 (ax_sr_mem, ax_sr_time), (ax_minsr_mem, ax_minsr_time) = axes
 
 plot_step(ax_sr_mem, ax_sr_time, load_points(SR_DATA, "n_samples"), "n_samples", "sr_step")
@@ -54,22 +53,29 @@ plot_step(ax_minsr_mem, ax_minsr_time, load_points(MINSR_DATA, "n_parameters"), 
 # With more samples than the batch size, the batched Jacobian is built in batches
 batch_size = json.loads((SR_DATA / "config.json").read_text())["batch_size"]
 ax_sr_mem.axvline(batch_size, color=cfg.COLORS["guide"], ls="--")
-ax_sr_mem.annotate("batch size of the\nbatched Jacobian", (batch_size, 0.5), xycoords=("data", "axes fraction"),
+ax_sr_mem.annotate("batch size", (batch_size, 0.5), xycoords=("data", "axes fraction"),
                    xytext=(-4, 0), textcoords="offset points", rotation=90, ha="right", va="center", color=cfg.COLORS["guide"])
 
-for ax, letter, xlabel in zip(axes.flat, "abcd", ["Number of samples"] * 2 + ["Number of parameters"] * 2):
+for ax, letter in zip(axes.flat, "abcd"):
     ax.set_title(f"({letter})", loc="left")
     ax.set_xscale("log", base=2)
     ax.set_xticks(2.0 ** np.arange(10, 21, 2))
     ax.set_yscale("log")
-    ax.set_xlabel(xlabel)
     cfg.plain_log_labels(ax.yaxis)
+# Both panels of a row share the x axis, so one label per row, centered below the row after the layout is done
+row_labels = {ax_sr_mem: "Number of samples", ax_minsr_mem: "Number of parameters"}
+for ax, xlabel in row_labels.items():
+    ax.set_xlabel(xlabel)
 
 # One entry per series over the four panels
 legend = {}
 for ax in axes.flat:
     for handle, label in zip(*ax.get_legend_handles_labels()):
         legend.setdefault(label, handle)
-fig.legend(legend.values(), legend.keys(), loc="upper center", ncol=2, frameon=False)
+fig.legend(legend.values(), legend.keys(), loc="upper center", ncol=3, frameon=False)
 fig.tight_layout(rect=(0, 0, 1, 0.90))
+for (left, right), ax in zip(axes, row_labels):
+    # The x of an axis label is in axes coordinates, its y is kept below the tick labels when drawing
+    center = (left.get_position().x0 + right.get_position().x1) / 2
+    ax.xaxis.label.set_x((center - left.get_position().x0) / left.get_position().width)
 cfg.save(fig, "netket_comparison_sr_minsr_1gpu")
