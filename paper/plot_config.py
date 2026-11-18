@@ -47,8 +47,25 @@ COLORS = {
     "exact": "#8d82f4",
     "cnn_chen": "#5b4cc4",
     "cnn_schmitt": "#b58df2",
+    # jaxmg comparison
+    "jaxmg_off": "#8d82f4",
+    "jaxmg_on": "#30ca92",
+    # Numbers of GPUs for the mc chains scan
+    "gpus_1": "#30ca92",
+    "gpus_2": "#8d82f4",
+    "gpus_4": "#1d8a63",
+    # Stages of a TDVP step
+    "objective": "#30ca92",
+    "solve": "#8d82f4",
+    "sampling": "#1d8a63",
     # Reference lines and their annotations
     "guide": "#808080",
+}
+
+STAGES = {
+    "compute objective function and gradient": ("Objective function and gradient", COLORS["objective"]),
+    "solve": ("Solve", COLORS["solve"]),
+    "sampling": ("Sampling", COLORS["sampling"]),
 }
 
 def setup(*, grid=True):
