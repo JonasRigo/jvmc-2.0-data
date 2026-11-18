@@ -23,13 +23,22 @@ The libraries and versions are in `requirements.txt` (`pip install -r requiremen
 | `compare_netket_sr.py` + `compare_netket_minsr.py` | both of the above | `netket_comparison_sr_minsr_*.pdf` |
 | `quantum_dot_2d.py` | `quantum_dot_2d.h5` | `quantum_dot_2d.pdf` |
 | `plot_mixed_precision_benchmark.py` | `precision_benchmark.h5` | `mixed_precision_benchmark.pdf` |
+| `batch_size_and_mc_chains_scan.py` | `batch_size_scan/` | `batch_size_scan.pdf` |
+| `batch_size_and_mc_chains_scan.py` | `mc_chains_scan/` | `mc_chains_scan.pdf` |
+| `jaxmg_and_gpu_scaling.py` | `jaxmg_scan/` | `jaxmg_scan.pdf` |
+| `jaxmg_and_gpu_scaling.py` | `gpu_scaling/` | `gpu_scaling.pdf` |
 
 - **compare_netket**: time of sampling and of the estimate of ⟨H⟩, jVMC_exp vs NetKet.
 - **compare_netket_sr**: time and peak memory of one SR step for a growing number of samples.
 - **compare_netket_minsr**: time and peak memory of one MinSR step for a growing number of parameters.
 - **quantum_dot_2d**: VMC ground state of 6 electrons in a 2D harmonic trap, compared with FCI.
+- **batch_size_scan**: speedup of the stages of a TDVP step and peak memory for an increasing batch size (RWKV, 1 GPU).
+- **mc_chains_scan**: speedup of the sampling for an increasing number of Markov chains (CpxCNN, 1, 2 and 4 GPUs).
+- **jaxmg_scan**: time of a TDVP step with the SR equation solved on one device or distributed with jaxmg, for an increasing number of parameters (RNN, 16 GPUs).
+- **gpu_scaling**: speedup of a TDVP step with the number of GPUs, and time of its stages on 1 and 16 GPUs (RNN).
 
 The NetKet comparisons were run on NVIDIA GH200 GPUs (1 GPU, and 4 GPUs for the `_4gpus` folders)
+The batch-size, Markov-chain, jaxmg and GPU scans were run on NVIDIA A100 80GB GPUs.
 
 ## Plot typography and physical size
 
