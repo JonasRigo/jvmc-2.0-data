@@ -1,0 +1,53 @@
+{
+  "system": {
+    "L": 8,
+    "J": 1.0,
+    "h_crit": 3.04438,
+    "periodic": true
+  },
+  "net": {
+    "ResNet": {
+      "filter_size": 4,
+      "num_channels": 16,
+      "num_layers": 2
+    },
+    "batchSize": 1000
+  },
+  "simulation": {
+    "tmax": 2.0,
+    "dt": 1e-3,
+    "tol": 1e-3,
+    "maxStep": 0.05,
+    "max_steps": 5000,
+
+    "invCutoff": 1e-8,
+    "snr_tol": 0,
+    "diagonalShift": 0.0,
+
+    "seed": 4321,
+    "symmetry": "spin_flip",
+    "num_samples": 300000,
+    "numChains": 100,
+    "thermalizationSweeps": 25,
+
+    "save_meta_data": true,
+    "save_params_every": 0,
+
+    "resume": true,
+    "checkpoint_every": 10,
+    "walltime_margin": 900,
+
+    "init": {
+      "mode": "gs_search",
+      "steps": 1000,
+      "dt": 1e-2,
+      "var_tol": 1e-6,
+      "diagonalShift": 0.0,
+      "diagonalScale": 10.0,
+      "snr_tol": 0,
+      "delta": 1e-4
+    },
+
+    "runs": [{ "net": "ResNet", "h_ratio": 1.0 }]
+  }
+}
