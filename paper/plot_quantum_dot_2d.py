@@ -14,7 +14,7 @@ with h5py.File(cfg.DATA_DIR / "quantum_dot_2d.h5", "r") as f:
     E_c_fci = f["fci/E_c"][()]
     E_fci = f["fci/energy"][()]
 
-fig, ax = plt.subplots(figsize=(11, 4.5))
+fig, ax = plt.subplots(figsize=cfg.figure_size(width_fraction=0.9, height_mm=85))
 
 ax.plot(steps, energy, label="VMC", color=cfg.COLORS["vmc"])
 for E_c, E, alpha in zip(E_c_fci, E_fci, np.linspace(0.3, 1, len(E_fci))):

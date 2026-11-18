@@ -26,7 +26,7 @@ measured = [p for pts in points.values() for p in pts]
 limit = measured[0]["bytes_limit"] / 1e9
 n_min = min(p["n_samples"] for p in measured)
 
-fig, (ax_mem, ax_time) = plt.subplots(1, 2, figsize=(13, 5))
+fig, (ax_mem, ax_time) = plt.subplots(1, 2, figsize=cfg.figure_size(height_mm=100))
 
 for series, (label, color, marker) in SERIES.items():
     n = [p["n_samples"] for p in points[series]]
@@ -55,5 +55,5 @@ for ax in (ax_mem, ax_time):
     cfg.plain_log_labels(ax.yaxis)
 
 fig.legend(*ax_mem.get_legend_handles_labels(), loc="upper center", ncol=3, frameon=False)
-fig.tight_layout(rect=(0, 0, 1, 0.92))
+fig.tight_layout(rect=(0, 0, 1, 0.87))
 cfg.save(fig, "netket_comparison_sr_4gpus")

@@ -28,7 +28,7 @@ for library in ("jvmc", "netket"):
 series = [s for s in SERIES if s in variants]
 
 # One panel per stage, each with its own scale
-fig, axes = plt.subplots(1, len(STAGES), figsize=(13, 5))
+fig, axes = plt.subplots(1, len(STAGES), figsize=cfg.figure_size(height_mm=100))
 for ax, (stage, title) in zip(axes, STAGES.items()):
     times = [np.asarray(variants[s]["times"][stage]) for s in series]
     q25, median, q75 = (np.array([np.percentile(t, q) for t in times]) for q in (25, 50, 75))
@@ -49,6 +49,6 @@ for ax, (stage, title) in zip(axes, STAGES.items()):
     ax.set_xticks([])
     ax.margins(y=0.25)
 
-fig.legend(*axes[0].get_legend_handles_labels(), loc="upper center", ncol=len(series), frameon=False)
-fig.tight_layout(rect=(0, 0, 1, 0.92))
+fig.legend(*axes[0].get_legend_handles_labels(), loc="upper center", ncol=2, frameon=False)
+fig.tight_layout(rect=(0, 0, 1, 0.87))
 cfg.save(fig, "netket_comparison")
