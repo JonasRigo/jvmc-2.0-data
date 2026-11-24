@@ -1,5 +1,5 @@
 """Quench dynamics of the 2D transverse-field Ising model at h = h_c, starting in the x-polarized state, for L x L
-lattices. Rows: energy, TDVP error and magnetization X; columns: L = 6, 8, 10.
+lattices. Rows: relative energy error, TDVP error and magnetization X; columns: L = 6, 8, 10.
 
 Data in Data/tfim_dynamics/, from the runs in Scripts/tfim_dynamics/ (encap version names below) and the references:
     jvmc_6x6_nc10.csv      6_by_6       ResNet, n_C = 10, 8e4 samples
@@ -44,8 +44,9 @@ for col, (L, runs) in zip(axes.T, RUNS.items()):
     for file, label, color in runs:
         data = load_run(file)
         t = data["time"] * H_C
-        # Energy relative to the initial state, E_0 = -h_c L^2
-        ax_E.plot(t, data["energy_mean"] + H_C * L**2, color=color)
+        # Relative error of the energy, which is conserved at its initial value E_0 = -h_c L^2, in units of 1e-3
+        E_0 = -H_C * L**2
+        ax_E.plot(t, 1e3 * (data["energy_mean"] - E_0) / abs(E_0), color=color)
         ax_r.plot(t, data["tdvp_error"], color=color)
         ax_X.plot(t, data["X_mean"], color=color, label=label)
     ax_E.set_title(rf"${L}\times {L}$")
@@ -70,10 +71,10 @@ for ax in axes[2]:
     ax.set_xlabel(r"time $h_\mathrm{c} t$")
     ax.legend(loc="upper right", fontsize=cfg.TICK_FONTSIZE, labelspacing=0.3, borderaxespad=0.3)
 
-axes[0, 0].set_ylabel(r"energy $E - E_0$")
+axes[0, 0].set_ylabel(r"$(E - E_0)/|E_0|$ [$10^{-3}$]")
 axes[1, 0].set_ylabel(r"TDVP error $r^2$")
 axes[2, 0].set_ylabel(r"magnetization $X$")
-axes[0, 0].set(xlim=(0, 6.1), xticks=range(7), ylim=(-2, 2), yticks=[-2, 0, 2])
+axes[0, 0].set(xlim=(0, 6.1), xticks=range(7), ylim=(-6, 6), yticks=[-5, 0, 5])
 axes[1, 0].set(ylim=(1e-6, 0.2), yticks=[1e-6, 1e-4, 1e-2])
 axes[2, 0].set(ylim=(0.75, 1), yticks=[0.8, 0.9, 1.0])
 
